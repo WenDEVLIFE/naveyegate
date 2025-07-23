@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:naveyegate/src/repository/SubmitRepository.dart';
 
 class ObjectViewModel extends ChangeNotifier {
 
@@ -10,6 +11,7 @@ class ObjectViewModel extends ChangeNotifier {
   bool isInitialized = false;
   Uint8  ? imageBytes;
   final TextEditingController feedbackController = TextEditingController();
+  final SubmitRepositoryImpl submitRepository = SubmitRepositoryImpl();
 
   final FlutterTts _flutterTts = FlutterTts();
 
@@ -37,6 +39,21 @@ class ObjectViewModel extends ChangeNotifier {
     await _flutterTts.setPitch(1.0);
     print("Text to Speech initialized with description: $description");
     notifyListeners();
+  }
+
+
+  Future<void> submitReport() async {
+    String feedback = feedbackController.text.trim();
+    if (feedback.isNotEmpty) {
+
+      print("Feedback submitted: $feedback");
+       await submitRepository.submitReport(
+        feedback: feedback);
+
+      feedbackController.clear();
+    } else {
+      print("Feedback is empty, nothing to submit.");
+    }
   }
 
 
