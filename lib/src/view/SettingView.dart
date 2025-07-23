@@ -1,4 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+import '../helpers/ColorHelper.dart';
+import '../widget/CustomText.dart';
 
 class SettingView extends StatelessWidget {
 
@@ -6,15 +10,16 @@ class SettingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Settings'),
-      ),
-      child: Center(
-        child: Text(
-          'Settings Page',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return Scaffold(
+      appBar: AppBar(
+        title: CustomText(
+          text: 'Settings',
+          fontFamily: 'EB Garamond',
+          fontSize: 30,
+          color: ColorHelper.primaryContainer,
+          fontWeight: FontWeight.w700,
         ),
+        backgroundColor: ColorHelper.primaryColor,
       ),
     );
   }

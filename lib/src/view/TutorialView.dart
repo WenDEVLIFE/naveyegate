@@ -13,7 +13,7 @@ class TutorialView extends StatelessWidget {
       appBar: AppBar(
         title: CustomText(
           text: 'Tutorial',
-          fontFamily: 'EB Gammond',
+          fontFamily: 'EB Garamond',
           fontSize: 30,
           color: ColorHelper.primaryContainer,
           fontWeight: FontWeight.w700,

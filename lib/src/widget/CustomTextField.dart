@@ -27,7 +27,7 @@ class CustomTextField extends StatelessWidget {
       ),
       style: TextStyle(
         fontSize: 16.0,
-        fontFamily: 'EB Gammond',
+        fontFamily: 'EB Garamond',
         fontWeight: FontWeight.w700,
         color: ColorHelper.primaryColor,
       ),

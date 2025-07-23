@@ -48,7 +48,7 @@ class DropDownText extends StatelessWidget {
              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
              child: Text(
                description,
-               style: TextStyle(fontSize: 18, color: Colors.black45, fontFamily: 'EB Gammond', fontWeight: FontWeight.w500),
+               style: TextStyle(fontSize: 18, color: Colors.black45, fontFamily: 'EB Garamond', fontWeight: FontWeight.w500),
              ),
            ),
            SizedBox(height: screenHeight * 0.02),
@@ -61,7 +61,7 @@ class DropDownText extends StatelessWidget {
                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                  children: [
-                   CustomText(text: 'Click me to speak', fontFamily: 'EB Gammond', fontSize: 20, color: ColorHelper.secondaryColor, fontWeight: FontWeight.w700),
+                   CustomText(text: 'Click me to speak', fontFamily: 'EB Garamond', fontSize: 20, color: ColorHelper.secondaryColor, fontWeight: FontWeight.w700),
                    SizedBox(width: screenWidth * 0.04),
                    Icon(
                      Icons.record_voice_over_rounded,

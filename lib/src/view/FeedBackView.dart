@@ -19,7 +19,7 @@ class FeedBackView extends StatelessWidget {
           appBar: AppBar(
             title: CustomText(
               text: 'Feedback',
-              fontFamily: 'EB Gammond',
+              fontFamily: 'EB Garamond',
               fontSize: 30,
               color: ColorHelper.primaryContainer,
               fontWeight: FontWeight.w700,
@@ -35,7 +35,7 @@ class FeedBackView extends StatelessWidget {
                     padding: const EdgeInsets.all(16.0),
                     child: CustomText(
                       text: 'We value your feedback!',
-                      fontFamily: 'EB Gammond',
+                      fontFamily: 'EB Garamond',
                       fontSize: 25,
                       color: ColorHelper.primaryColor,
                       fontWeight: FontWeight.w600,
