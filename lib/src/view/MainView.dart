@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:naveyegate/src/view/HomeView.dart';
+import 'package:naveyegate/src/view/TutorialView.dart';
 
 import '../widget/CustomBottomNavigation.dart';
 
@@ -19,7 +20,7 @@ class _MainScreenState extends State<MainView> {
       case 0:
         return HomeView();
       case 1:
-        return HomeView();
+        return TutorialView();
       case 2:
         return HomeView();
       case 3:
