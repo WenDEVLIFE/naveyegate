@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../helpers/ColorHelper.dart';
 import '../widget/CustomText.dart';
+import '../widget/DropDownText.dart';
 
 class TutorialView extends StatelessWidget {
   @override
@@ -18,6 +19,56 @@ class TutorialView extends StatelessWidget {
           fontWeight: FontWeight.w700,
         ),
         backgroundColor: ColorHelper.primaryColor,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropDownText(
+                title: 'How to use the app',
+                description: 'This app helps you navigate through various features and functionalities. Follow the steps below to get started.',
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropDownText(
+                title: 'How to use the app',
+                description: 'This app helps you navigate through various features and functionalities. Follow the steps below to get started.',
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropDownText(
+                title: 'How to use the app',
+                description: 'This app helps you navigate through various features and functionalities. Follow the steps below to get started.',
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropDownText(
+                title: 'How to use the app',
+                description: 'This app helps you navigate through various features and functionalities. Follow the steps below to get started.',
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropDownText(
+                title: 'How to use the app',
+                description: 'This app helps you navigate through various features and functionalities. Follow the steps below to get started.',
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropDownText(
+                title: 'How to use the app',
+                description: 'This app helps you navigate through various features and functionalities. Follow the steps below to get started.',
+              ),
+            ),
+
+          ],
+        ),
       ),
     );
   }
