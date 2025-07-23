@@ -80,6 +80,13 @@ class HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin 
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.greenAccent, width: 3),
                           borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.greenAccent.withOpacity(0.3),
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                            ),
+                          ],
                         ),
                       ),
                       AnimatedBuilder(
@@ -91,8 +98,27 @@ class HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin 
                             right: 0,
                             child: Container(
                               width: boxSize,
-                              height: 2,
-                              color: Colors.greenAccent,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(3),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.greenAccent.withOpacity(0.8),
+                                    Colors.greenAccent,
+                                    Colors.greenAccent.withOpacity(0.8),
+                                    Colors.transparent,
+                                  ],
+                                  stops: [0.0, 0.2, 0.5, 0.8, 1.0],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.greenAccent.withOpacity(0.7),
+                                    blurRadius: 12,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
