@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "612619355729",
+    "project_id": "naveyegate-3b0c4",
+    "storage_bucket": "naveyegate-3b0c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612619355729:android:1ce37f566938fe47c35a70",
+        "android_client_info": {
+          "package_name": "com.naveyegate.naveyegate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzfJ1OyuDc8_W2uYApGH3Z3PVojPskM-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
