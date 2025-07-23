@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:naveyegate/src/helpers/ColorHelper.dart';
 import 'package:naveyegate/src/widget/CustomText.dart';
+import 'package:naveyegate/src/widget/CustomTextField.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel/ObjectViewModel.dart';
@@ -10,15 +11,15 @@ import '../viewmodel/ObjectViewModel.dart';
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
-   HomeViewState createState() => HomeViewState();
-
+  @override
+  HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends State<HomeView>  with SingleTickerProviderStateMixin {
-
+class HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   final double boxSize = 250;
+  TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
@@ -41,9 +42,9 @@ class HomeViewState extends State<HomeView>  with SingleTickerProviderStateMixin
     _controller.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -51,7 +52,13 @@ class HomeViewState extends State<HomeView>  with SingleTickerProviderStateMixin
       builder: (context, objectViewModel, child) {
         return Scaffold(
           appBar: AppBar(
-            title: CustomText(text: 'Home', fontFamily: 'EB Gammond', fontSize: 30, color: ColorHelper.primaryContainer, fontWeight: FontWeight.w700),
+            title: CustomText(
+              text: 'Home',
+              fontFamily: 'EB Gammond',
+              fontSize: 30,
+              color: ColorHelper.primaryContainer,
+              fontWeight: FontWeight.w700,
+            ),
             backgroundColor: ColorHelper.primaryColor,
           ),
           body: objectViewModel.isInitialized && objectViewModel.cameraController != null
@@ -62,33 +69,36 @@ class HomeViewState extends State<HomeView>  with SingleTickerProviderStateMixin
               ),
               // Scanning box overlay with animated line
               Center(
-                child: Stack(
-                  children: [
-                    Container(
-                      width: boxSize,
-                      height: boxSize,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.greenAccent, width: 3),
-                        borderRadius: BorderRadius.circular(16),
+                child: SizedBox(
+                  width: boxSize,
+                  height: boxSize,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: boxSize,
+                        height: boxSize,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.greenAccent, width: 3),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                    ),
-                    // Animated scanning line
-                    AnimatedBuilder(
-                      animation: _animation,
-                      builder: (context, child) {
-                        return Positioned(
-                          top: _animation.value,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            width: boxSize,
-                            height: 2,
-                            color: Colors.greenAccent,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                      AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) {
+                          return Positioned(
+                            top: _animation.value,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              width: boxSize,
+                              height: 2,
+                              color: Colors.greenAccent,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               // Semi-transparent mask
@@ -109,41 +119,44 @@ class HomeViewState extends State<HomeView>  with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-              // Bottom buttons
+              // Bottom content
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 32.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: Icon(Icons.mic, color: Colors.white, size: 60),
                         onPressed: () {
-                          // Handle upload action
+                          // Handle mic action
                         },
+                      ),
+                      const SizedBox(height: 16),
+                      CustomText(
+                        text: 'Press the mic to speak',
+                        fontFamily: 'EB Gammond',
+                        fontSize: 20,
+                        color: ColorHelper.primaryContainer,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: screenWidth * 0.8,
+                        child: CustomTextField(
+                          hintText: 'Output',
+                          controller: controller,
+                          keyboardType: TextInputType.text,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: CustomText(
-                    text: 'Place the object inside the box',
-                    fontFamily: 'EB Garamond',
-                    fontSize: 20,
-                    color: ColorHelper.primaryContainer,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              )
             ],
           )
               : const Center(child: CircularProgressIndicator()),
-
         );
       },
     );
