@@ -9,6 +9,7 @@ class ObjectViewModel extends ChangeNotifier {
   CameraController? cameraController;
   bool isInitialized = false;
   Uint8  ? imageBytes;
+  final TextEditingController feedbackController = TextEditingController();
 
   final FlutterTts _flutterTts = FlutterTts();
 
