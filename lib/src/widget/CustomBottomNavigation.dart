@@ -29,6 +29,18 @@ class CustomBottomNavigation extends StatelessWidget {
             backgroundColor: ColorHelper.primaryColor,
             selectedItemColor: Colors.white,
             unselectedItemColor: ColorHelper.primaryContainer,
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'EB Garamond',
+              fontSize: 14,
+              color: Colors.white, // This is ignored, use selectedItemColor
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontFamily: 'EB Garamond',
+              fontSize: 12,
+              color: ColorHelper.primaryContainer, // This is ignored, use unselectedItemColor
+            ),
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
