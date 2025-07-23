@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:naveyegate/src/view/FeedBackView.dart';
 import 'package:naveyegate/src/view/HomeView.dart';
 import 'package:naveyegate/src/view/TutorialView.dart';
 
@@ -22,10 +23,8 @@ class _MainScreenState extends State<MainView> {
       case 1:
         return TutorialView();
       case 2:
-        return HomeView();
+        return FeedBackView();
       case 3:
-        return HomeView();
-      case 4:
         return HomeView();
       default:
         return HomeView();
