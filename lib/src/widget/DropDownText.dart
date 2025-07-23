@@ -51,6 +51,7 @@ class DropDownText extends StatelessWidget {
                style: TextStyle(fontSize: 18, color: Colors.black45, fontFamily: 'EB Gammond', fontWeight: FontWeight.w500),
              ),
            ),
+           SizedBox(height: screenHeight * 0.02),
            GestureDetector(
              onTap: () {
                // Add your action here
@@ -61,7 +62,7 @@ class DropDownText extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                  children: [
                    CustomText(text: 'Click me to speak', fontFamily: 'EB Gammond', fontSize: 20, color: ColorHelper.secondaryColor, fontWeight: FontWeight.w700),
-                   SizedBox(width: screenWidth * 0.02),
+                   SizedBox(width: screenWidth * 0.04),
                    Icon(
                      Icons.record_voice_over_rounded,
                      color: ColorHelper.primaryColor,
@@ -69,7 +70,9 @@ class DropDownText extends StatelessWidget {
                  ],
                ),
              )
-           )
+           ),
+           SizedBox(height: screenHeight * 0.02),
+
          ],
        ),
     );
