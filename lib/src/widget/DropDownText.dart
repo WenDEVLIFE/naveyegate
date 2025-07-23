@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:naveyegate/src/helpers/ColorHelper.dart';
 import 'package:naveyegate/src/widget/CustomText.dart';
+import 'package:provider/provider.dart';
+
+import '../viewmodel/ObjectViewModel.dart';
 
 class DropDownText extends StatelessWidget {
   final String title;
@@ -51,6 +54,7 @@ class DropDownText extends StatelessWidget {
            GestureDetector(
              onTap: () {
                // Add your action here
+               Provider.of<ObjectViewModel>(context, listen: false).intializeTextToSpeech(description);
              },
              child: Center(
                child: Row(
