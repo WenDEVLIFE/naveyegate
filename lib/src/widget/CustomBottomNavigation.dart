@@ -14,6 +14,7 @@ class CustomBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       onTap: onTap,
       backgroundColor: ColorHelper.primaryColor ,
@@ -25,8 +26,16 @@ class CustomBottomNavigation extends StatelessWidget {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.camera_alt_outlined),
-          label: 'Scan',
+          icon: Icon(Icons.info_outline),
+          label: 'Tutorial',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.feedback_rounded),
+          label: 'FeedBack',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings),
+          label: 'Settings',
         ),
       ],
     );

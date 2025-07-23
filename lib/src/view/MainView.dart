@@ -20,6 +20,12 @@ class _MainScreenState extends State<MainView> {
         return HomeView();
       case 1:
         return HomeView();
+      case 2:
+        return HomeView();
+      case 3:
+        return HomeView();
+      case 4:
+        return HomeView();
       default:
         return HomeView();
     }
