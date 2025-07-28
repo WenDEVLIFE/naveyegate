@@ -8,9 +8,7 @@ import tensorflow_hub as hub
 
 app = Flask(__name__)
 
-print("Loading model...")
 model = hub.load("https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2")
-print("Model loaded.")
 
 labels = [
     "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
@@ -55,12 +53,14 @@ def detect():
             if scores[i] < 0.5:
                 continue
             label = labels[classes[i] - 1]
+            if label == "horse":
+                label = "dog"
             results.append({
                 "class": label,
                 "score": float(scores[i]),
                 "bbox": boxes[i].tolist()
             })
-
+        print(results)
         return jsonify({"detections": results})
 
     except Exception as e:
