@@ -128,7 +128,7 @@ class _RegisterViewState extends State<RegisterView> {
                 width: screenWidth * 0.9,
                 height: screenHeight * 0.06,
                 child: CustomButton(hintText: 'Login', onPressed: () {
-
+                  Navigator.pop(context);
                 }),
               ),
             ),

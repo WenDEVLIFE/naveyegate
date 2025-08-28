@@ -108,7 +108,7 @@ class _LoginViewState extends State<LoginView> {
                 height: screenHeight * 0.06,
                 child: CustomButton(hintText: 'Register', onPressed: (){
 
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return const RegisterView();
                   }));
                 }),
