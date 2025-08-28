@@ -38,7 +38,7 @@ class _RegisterViewState extends State<RegisterView> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: CustomText(
-                  text: 'Welcome Back',
+                  text: 'Register',
                   fontFamily: 'EB Garamond',
                   fontSize: 30,
                   color: ColorHelper.primaryContainer,
@@ -51,7 +51,7 @@ class _RegisterViewState extends State<RegisterView> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: CustomText(
-                  text: 'Please login to your account',
+                  text: 'Please create an account',
                   fontFamily: 'EB Garamond',
                   fontSize: 20,
                   color: ColorHelper.primaryContainer,
