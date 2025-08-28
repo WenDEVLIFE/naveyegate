@@ -19,7 +19,7 @@ class CustomButton extends StatelessWidget {
         onPressed: onPressed,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         borderRadius: BorderRadius.circular(8),
-        color: ColorHelper.primaryColor,
+        color: ColorHelper.secondaryColor,
         child: Text(
           hintText,
           style: TextStyle(
