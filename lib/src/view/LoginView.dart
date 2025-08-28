@@ -6,6 +6,7 @@ import 'package:naveyegate/src/widget/CustomTextField.dart';
 
 import '../helpers/ColorHelper.dart';
 import '../widget/CustomText.dart';
+import 'RegisterView.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -107,6 +108,9 @@ class _LoginViewState extends State<LoginView> {
                 height: screenHeight * 0.06,
                 child: CustomButton(hintText: 'Register', onPressed: (){
 
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return const RegisterView();
+                  }));
                 }),
               ),
             ),
