@@ -1,5 +1,6 @@
+
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 class FirebaseService {
   static final adminEmail = 'admin@gmail.com';
   static final adminPassword = '@admin123';
@@ -19,16 +20,6 @@ class FirebaseService {
       print('Firebase is not running');
     } else {
       print('Firebase is running');
-    }
-  }
-
-  // send the email
-  Future<void> sendPasswordResetEmail(String email) async {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-    if (email == adminEmail) {
-      print('Password reset email sent to $email');
-    } else {
-      print('No admin email found for $email');
     }
   }
 }
