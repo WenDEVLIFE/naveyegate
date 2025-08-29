@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:naveyegate/src/services/EmailSenderService.dart';
+import 'package:naveyegate/src/repository/LoginRepository.dart';
+import 'package:naveyegate/src/view/MainView.dart';
 import 'package:naveyegate/src/widget/CustomButton.dart';
 import 'package:naveyegate/src/widget/CustomPasswordField.dart';
 import 'package:naveyegate/src/widget/CustomTextField.dart';
@@ -17,6 +17,7 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  final LoginRepository _loginRepository = LoginRepositoryImpl();
   TextEditingController feedbackController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool obscureText = true;
@@ -86,7 +87,34 @@ class _LoginViewState extends State<LoginView> {
                  width: screenWidth * 0.9,
                  height: screenHeight * 0.06,
                  child: CustomButton(hintText: 'Login', onPressed: (){
+                   String email = feedbackController.text.trim();
+                    String password = passwordController.text.trim();
 
+                    if (email.isEmpty || password.isEmpty) {
+                      // Show error message if fields are empty
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please enter both email and password')),
+                      );
+                      return;
+                    }
+
+                    _loginRepository.loginUser(email, password).then((success) {
+                      if (success) {
+                        // Navigate to the next screen or show success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Login Successful')),
+                        );
+
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                          return MainView();
+                        }));
+                      } else {
+                        // Show error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Login Failed. Please check your credentials.')),
+                        );
+                      }
+                    });
                  }),
                ),
              ),
