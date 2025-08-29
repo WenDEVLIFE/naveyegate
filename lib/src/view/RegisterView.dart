@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:naveyegate/src/services/EmailSenderService.dart';
 
 import '../helpers/ColorHelper.dart';
 import '../widget/CustomButton.dart';
@@ -15,9 +19,17 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
-  TextEditingController feedbackController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   bool obscureText = true;
+
+  Future <String> generateOTP() async {
+    // Generate a random 6-digit OTP
+    final otp = (100000 + (999999 - 100000) * (new DateTime.now().millisecondsSinceEpoch % 1000) / 1000).toInt();
+    return otp.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery
@@ -67,7 +79,7 @@ class _RegisterViewState extends State<RegisterView> {
                 height: screenHeight * 0.05,
                 child: CustomTextField(
                     hintText: 'Username',
-                    controller: feedbackController,
+                    controller: emailController,
                     keyboardType: TextInputType.text),
               ),
             ),
@@ -104,8 +116,10 @@ class _RegisterViewState extends State<RegisterView> {
               child: SizedBox(
                 width: screenWidth * 0.9,
                 height: screenHeight * 0.06,
-                child: CustomButton(hintText: 'Register', onPressed: () {
-
+                child: CustomButton(hintText: 'Register', onPressed: () async {
+                  String otp = await generateOTP();
+                  EmailSenderService.sendEmail(emailController.text, otp);
+                  openOTPDialog(emailController.text, passwordController.text, otp);
                 }),
               ),
             ),
@@ -135,6 +149,157 @@ class _RegisterViewState extends State<RegisterView> {
           ],
         ),
       ),
+    );
+  }
+
+  // opne the dialog to enter the OTP
+  void openOTPDialog(String email, String password, String otp) {
+     final TextEditingController otpController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        int secondsLeft = 30;
+        Timer? timer;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            timer ??= Timer.periodic(Duration(seconds: 1), (t) {
+                if (secondsLeft > 0) {
+                  setState(() {
+                    secondsLeft--;
+                  });
+                } else {
+                  t.cancel();
+                }
+              });
+
+            final double screenHeight = MediaQuery.of(context).size.height;
+            final double screenWidth = MediaQuery.of(context).size.width;
+
+            return AlertDialog(
+              backgroundColor: ColorHelper.primaryColor,
+              title: CustomText(
+                text: 'Enter the OTP sent to your email',
+                fontFamily: 'EB Garamond',
+                fontSize: 20,
+                color: ColorHelper.primaryContainer,
+                fontWeight: FontWeight.w700,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomText(
+                    text:  'Time left: $secondsLeft seconds',
+                    fontFamily: 'EB Garamond',
+                    fontSize: 20,
+                    color: ColorHelper.primaryContainer,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: screenWidth * 0.9,
+                      height: screenHeight * 0.05,
+                      child:  CustomTextField(
+                          hintText: 'Verification code',
+                          controller: emailController,
+                          keyboardType: TextInputType.text),
+                    ),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+
+                TextButton(
+                  child:CustomText(
+                    text: 'Cancel',
+                    fontFamily: 'EB Garamond',
+                    fontSize: 20,
+                    color: ColorHelper.primaryContainer,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  onPressed: () {
+                    timer?.cancel();
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child:CustomText(
+                    text: 'Resend',
+                    fontFamily: 'EB Garamond',
+                    fontSize: 20,
+                    color: ColorHelper.primaryContainer,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  onPressed: () {
+                    if (secondsLeft == 0) {
+                      setState(() {
+                        secondsLeft = 30;
+                      });
+                      Fluttertoast.showToast(
+                        msg: "OTP resent",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                    }
+                    Fluttertoast.showToast(
+                      msg: "Please wait for the timer to finish",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.grey,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  },
+                ),
+                TextButton(
+                  onPressed: secondsLeft == 0
+                      ? null
+                      : () {
+
+                    if (otpController.text == otp) {
+                      timer?.cancel();
+                      Navigator.of(context).pop();
+                      Fluttertoast.showToast(
+                        msg: "Registration successful",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                      Navigator.pop(context);
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Invalid OTP",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                    }
+                  },
+                  child: CustomText(
+                    text: 'Submit',
+                    fontFamily: 'EB Garamond',
+                    fontSize: 20,
+                    color: ColorHelper.primaryContainer,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
