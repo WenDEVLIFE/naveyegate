@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:naveyegate/src/helpers/SessionHelpers.dart';
 import 'package:naveyegate/src/view/LoginView.dart';
 import 'package:naveyegate/src/view/MainView.dart';
 
@@ -16,11 +17,25 @@ class SplashView extends StatefulWidget {
 
 class _SplashViewState extends State<SplashView> {
   bool isLoading = true;
+  final SessionHelpers sessionHelpers = SessionHelpers();
 
   @override
   void initState() {
     super.initState();
     setLoading();
+  }
+
+  void LoadSession() async {
+    var user = await sessionHelpers.getUserInfo();
+    if (user != null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        return const MainView();
+      }));
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        return const LoginView();
+      }));
+    }
   }
 
   Future<void> setLoading() async {
@@ -37,9 +52,7 @@ class _SplashViewState extends State<SplashView> {
     setState(() {
       isLoading = false;
     });
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return const LoginView();
-    }));
+    LoadSession();
   }
 
   @override

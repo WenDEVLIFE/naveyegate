@@ -74,7 +74,7 @@ class FeedBackView extends StatelessWidget {
                       child: CustomButton(
                         hintText: 'Submit',
                         onPressed: () {
-
+                          objectViewModel.submitFeedback(context);
                         },
                       ),
                     ),

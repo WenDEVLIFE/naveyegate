@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:naveyegate/src/helpers/SessionHelpers.dart';
 import 'package:naveyegate/src/repository/LoginRepository.dart';
 import 'package:naveyegate/src/view/MainView.dart';
 import 'package:naveyegate/src/widget/CustomButton.dart';
@@ -18,6 +19,7 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final LoginRepository _loginRepository = LoginRepositoryImpl();
+  SessionHelpers sessionHelpers = SessionHelpers();
   TextEditingController feedbackController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool obscureText = true;
@@ -98,12 +100,14 @@ class _LoginViewState extends State<LoginView> {
                       return;
                     }
 
-                    _loginRepository.loginUser(email, password).then((success) {
+                    _loginRepository.loginUser(email, password).then((success) async {
                       if (success) {
                         // Navigate to the next screen or show success message
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Login Successful')),
                         );
+
+                        await sessionHelpers.saveUserInfo({'email': email});
 
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
                           return MainView();

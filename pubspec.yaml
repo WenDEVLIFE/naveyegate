@@ -24,6 +24,7 @@ dependencies:
   cloud_firestore: ^5.4.3
   email_sender: ^2.1.0
   mailer: ^6.0.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:naveyegate/src/helpers/SessionHelpers.dart';
+import 'package:naveyegate/src/view/LoginView.dart';
 
 import '../helpers/ColorHelper.dart';
+import '../widget/CustomButton.dart';
 import '../widget/CustomText.dart';
 
 class SettingView extends StatefulWidget {
@@ -18,6 +21,8 @@ class _SettingViewState extends State<SettingView> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: CustomText(
@@ -100,6 +105,24 @@ class _SettingViewState extends State<SettingView> {
                 });
               },
             ),
+            Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: SizedBox(
+                width: screenWidth * 0.9,
+                height: screenHeight * 0.06,
+                child: CustomButton(
+                  hintText: 'Logout',
+                  onPressed: () {
+                      SessionHelpers sessionHelpers = SessionHelpers();
+                      sessionHelpers.clearUserInfo();
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                        return const LoginView();
+                      }));
+                  },
+                ),
+              ),
+            ),
+
           ],
         ),
       ),

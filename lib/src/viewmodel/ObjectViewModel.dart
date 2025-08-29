@@ -110,4 +110,22 @@ void restartDetection() {
       await Future.delayed(const Duration(seconds: 5));
     }
   }
+
+  void submitFeedback(BuildContext context) {
+    if (feedbackController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your feedback before submitting.')),
+      );
+      return;
+    }
+    submitReport().then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Feedback submitted successfully!')),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit feedback: $error')),
+      );
+    });
+  }
 }

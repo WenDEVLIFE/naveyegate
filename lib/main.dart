@@ -5,9 +5,10 @@ import 'package:naveyegate/src/viewmodel/ObjectViewModel.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  runApp(const MyApp());
-
+  WidgetsFlutterBinding.ensureInitialized();
   await FirebaseService.run();
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

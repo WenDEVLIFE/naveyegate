@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:naveyegate/src/helpers/SessionHelpers.dart';
 
 import '../services/FirebaseService.dart';
 
@@ -15,6 +16,7 @@ class SubmitRepositoryImpl  extends SubmitRepository {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  SessionHelpers sessionHelpers = SessionHelpers();
 
   @override
   Future<void> submitReport({required String feedback}) async {
@@ -24,8 +26,11 @@ class SubmitRepositoryImpl  extends SubmitRepository {
       password: FirebaseService.adminPassword,
     ).then((value) async {
       final user = _auth.currentUser;
+      var userInfo = await sessionHelpers.getUserInfo();
+      var email = userInfo?['email'] ?? 'unknown';
       if (user != null) {
         await _firestore.collection('reports').add({
+          'email': email,
           'feedback': feedback,
           'timestamp': FieldValue.serverTimestamp(),
           'userId': user.uid,
