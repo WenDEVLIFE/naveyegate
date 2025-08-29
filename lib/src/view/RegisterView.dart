@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:naveyegate/src/repository/RegisterRepository.dart';
 import 'package:naveyegate/src/services/EmailSenderService.dart';
 
 import '../helpers/ColorHelper.dart';
@@ -78,7 +78,7 @@ class _RegisterViewState extends State<RegisterView> {
                 width: screenWidth * 0.9,
                 height: screenHeight * 0.05,
                 child: CustomTextField(
-                    hintText: 'Username',
+                    hintText: 'Email',
                     controller: emailController,
                     keyboardType: TextInputType.text),
               ),
@@ -103,7 +103,7 @@ class _RegisterViewState extends State<RegisterView> {
                   height: screenHeight * 0.05,
                   child: CustomPasswordField(
                       hintText: 'Confirm Password',
-                      controller: passwordController,
+                      controller: confirmPasswordController,
                       keyboardType: TextInputType.visiblePassword,
                       obscureText: obscureText
                   )
@@ -117,9 +117,47 @@ class _RegisterViewState extends State<RegisterView> {
                 width: screenWidth * 0.9,
                 height: screenHeight * 0.06,
                 child: CustomButton(hintText: 'Register', onPressed: () async {
-                  String otp = await generateOTP();
-                  EmailSenderService.sendEmail(emailController.text, otp);
-                  openOTPDialog(emailController.text, passwordController.text, otp);
+                   if (emailController.text.isEmpty || passwordController.text.isEmpty || confirmPasswordController.text.isEmpty) {
+                    Fluttertoast.showToast(
+                      msg: "Please fill all the fields",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.grey,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                    return;
+                  }
+                   if(emailController.text.contains('@') == false){
+                     Fluttertoast.showToast(
+                       msg: "Please enter a valid email",
+                       toastLength: Toast.LENGTH_SHORT,
+                       gravity: ToastGravity.BOTTOM,
+                       timeInSecForIosWeb: 1,
+                       backgroundColor: Colors.grey,
+                       textColor: Colors.white,
+                       fontSize: 16.0,
+                     );
+                     return;
+                   }
+
+                    if (passwordController.text != confirmPasswordController.text) {
+                      Fluttertoast.showToast(
+                        msg: "Passwords do not match",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                      return;
+                    }
+
+                   String otp = await generateOTP();
+                   EmailSenderService.sendEmail(emailController.text, otp);
+                   openOTPDialog(emailController.text, passwordController.text, otp);
                 }),
               ),
             ),
@@ -154,6 +192,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   // opne the dialog to enter the OTP
   void openOTPDialog(String email, String password, String otp) {
+    final RegisterRepositoryImpl registerRepository = RegisterRepositoryImpl();
      final TextEditingController otpController = TextEditingController();
     showDialog(
       context: context,
@@ -202,7 +241,7 @@ class _RegisterViewState extends State<RegisterView> {
                       height: screenHeight * 0.05,
                       child:  CustomTextField(
                           hintText: 'Verification code',
-                          controller: emailController,
+                          controller: otpController,
                           keyboardType: TextInputType.text),
                     ),
                   ),
@@ -260,20 +299,12 @@ class _RegisterViewState extends State<RegisterView> {
                 TextButton(
                   onPressed: secondsLeft == 0
                       ? null
-                      : () {
+                      : () async {
 
                     if (otpController.text == otp) {
                       timer?.cancel();
+                      await registerRepository.registerUser(email, password);
                       Navigator.of(context).pop();
-                      Fluttertoast.showToast(
-                        msg: "Registration successful",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.grey,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
                       Navigator.pop(context);
                     } else {
                       Fluttertoast.showToast(
