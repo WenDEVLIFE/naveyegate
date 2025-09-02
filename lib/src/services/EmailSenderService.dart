@@ -9,7 +9,7 @@ class EmailSenderService {
 
     final message = Message()
       ..from = Address('frouenmedinajr@gmail.com', 'Naveygate Verification Code')
-      ..recipients.add('medinajrfrouen@gmail.com')
+      ..recipients.add(email)
       ..subject = 'Naveygate Verification Code'
       ..html = '<h1>Your verification code is: $code</h1>';
 
