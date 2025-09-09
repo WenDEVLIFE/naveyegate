@@ -14,10 +14,12 @@ import numpy as np
 from flask import Flask, request, jsonify
 from inference_sdk import InferenceHTTPClient
 from PIL import Image, ImageDraw
-
+import cv2
+from ultralytics import YOLO
 app = Flask(__name__)
 
-model = hub.load("https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2")
+model = hub.load("https://tfhub.dev/tensorflow/efficientdet/d0/1")
+
 
 
 def preprocess_image_for_model(image, target_size=(224, 224), normalize=True, to_array=True):
@@ -61,15 +63,8 @@ def filter_predictions_by_confidence(predictions, threshold=0.2, conf_key='confi
 
 def generate_prediction_report(predictions, image_name="image.jpg", save_path="report.json"):
     from datetime import datetime
-    report = {
-        "image": image_name,
-        "timestamp": datetime.now().isoformat(),
-        "num_predictions": len(predictions),
-        "predictions": predictions
-    }
-    with open(save_path, 'w') as f:
-        json.dump(report, f, indent=4)
-    return save_path
+
+ 
 
 def resize_image(image, size=(224, 224)):
     if not isinstance(image, Image.Image):
@@ -165,6 +160,8 @@ def load_base64_image(base64_str):
     image = Image.open(io.BytesIO(image_data)).convert("RGB")
     return image
 
+yolo_model = YOLO("./weights/best.pt")
+
 @app.route("/detect", methods=["POST"])
 def detect():
     data = request.get_json()
@@ -173,9 +170,26 @@ def detect():
 
     try:
         image = load_base64_image(data["image"])
+        image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        img_resized = cv2.resize(image_cv, (224, 224))
+
+        yolo_results = yolo_model.predict(img_resized, verbose=False)
+        yolo_result = yolo_results[0]
+
+        top_class_idx = yolo_result.probs.top1
+        top_class_conf = yolo_result.probs.top1conf
+        class_name = yolo_result.names[top_class_idx]
+        if class_name.lower() in ["door", "stair"]:
+            return jsonify({
+                "detections": [{
+                    "class": class_name,
+                    "score": float(top_class_conf),
+                    "bbox": None 
+                }]
+            })
+
         image_np = np.array(image)
         input_tensor = tf.convert_to_tensor([image_np], dtype=tf.uint8)
-
         detector_output = model(input_tensor)
 
         boxes = detector_output["detection_boxes"].numpy()[0]

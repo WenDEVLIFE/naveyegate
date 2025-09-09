@@ -17,8 +17,16 @@ class ObjectViewModel extends ChangeNotifier {
 
   bool _stopScanning = false;
 
+  // 📌 Detection output
   String _detectionResult = "";
   String get detectionResult => _detectionResult;
+
+  // 📌 NEW: Proximity + Distance Info (placeholders for now)
+  String _proximityInfo = "Unknown"; // e.g. Near, Far, Very Close
+  String get proximityInfo => _proximityInfo;
+
+  String _distanceInfo = "N/A"; // e.g. 1.5 meters
+  String get distanceInfo => _distanceInfo;
 
   Future<void> initializeCamera() async {
     final cameras = await availableCameras();
@@ -42,13 +50,15 @@ class ObjectViewModel extends ChangeNotifier {
     _flutterTts.stop();
     super.dispose();
   }
-void stopDetection() {
-  _stopScanning = true;
-}
-void restartDetection() {
-  _stopScanning = false;
-  startDetectionLoop();
-}
+
+  void stopDetection() {
+    _stopScanning = true;
+  }
+
+  void restartDetection() {
+    _stopScanning = false;
+    startDetectionLoop();
+  }
 
   Future<void> intializeTextToSpeech(String description) async {
     await _flutterTts.setLanguage("en-US");
@@ -95,6 +105,9 @@ void restartDetection() {
               String result = detections.map((e) => e["class"]).join(", ");
               _detectionResult = "Detected: $result";
               await intializeTextToSpeech(_detectionResult);
+
+              // ✅ NEW: Update proximity + distance (mock for now)
+              _updateExtraInfo();
             }
           } else {
             _detectionResult = "Error from server.";
@@ -108,6 +121,21 @@ void restartDetection() {
 
       notifyListeners();
       await Future.delayed(const Duration(seconds: 5));
+    }
+  }
+
+  // 📌 Placeholder logic for proximity + distance
+  void _updateExtraInfo() {
+    // Just random demo values for now
+    final randomDistance = (1 + (DateTime.now().second % 5)) * 0.5; // 0.5m to 2.5m
+    _distanceInfo = "${randomDistance.toStringAsFixed(1)} meters";
+
+    if (randomDistance < 1) {
+      _proximityInfo = "Very Close";
+    } else if (randomDistance < 2) {
+      _proximityInfo = "Near";
+    } else {
+      _proximityInfo = "Far";
     }
   }
 
