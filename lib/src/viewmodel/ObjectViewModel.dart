@@ -21,12 +21,15 @@ class ObjectViewModel extends ChangeNotifier {
   String _detectionResult = "";
   String get detectionResult => _detectionResult;
 
-  // 📌 NEW: Proximity + Distance Info (placeholders for now)
+  // 📌 Proximity + Distance Info
   String _proximityInfo = "Unknown"; // e.g. Near, Far, Very Close
   String get proximityInfo => _proximityInfo;
 
   String _distanceInfo = "N/A"; // e.g. 1.5 meters
   String get distanceInfo => _distanceInfo;
+
+  // 📌 Track near detection
+  bool _nearDetection = false;
 
   Future<void> initializeCamera() async {
     final cameras = await availableCameras();
@@ -88,10 +91,22 @@ class ObjectViewModel extends ChangeNotifier {
 
           String base64Image = base64Encode(imageBytes!);
 
+          // ✅ Update proximity info first
+          _updateExtraInfo();
+
+          // ✅ Prepare payload
+          final Map<String, dynamic> payload = {
+            "image": base64Image,
+          };
+
+          if (_nearDetection) {
+            payload["nearDetection"] = true;
+          }
+
           final response = await http.post(
-            Uri.parse("http://192.168.100.12:5000/detect"),
+            Uri.parse("https://sea-lion-app-buwxm.ondigitalocean.app/detect"),
             headers: {"Content-Type": "application/json"},
-            body: jsonEncode({"image": base64Image}),
+            body: jsonEncode(payload),
           );
 
           if (response.statusCode == 200) {
@@ -105,9 +120,6 @@ class ObjectViewModel extends ChangeNotifier {
               String result = detections.map((e) => e["class"]).join(", ");
               _detectionResult = "Detected: $result";
               await intializeTextToSpeech(_detectionResult);
-
-              // ✅ NEW: Update proximity + distance (mock for now)
-              _updateExtraInfo();
             }
           } else {
             _detectionResult = "Error from server.";
@@ -126,16 +138,19 @@ class ObjectViewModel extends ChangeNotifier {
 
   // 📌 Placeholder logic for proximity + distance
   void _updateExtraInfo() {
-    // Just random demo values for now
-    final randomDistance = (1 + (DateTime.now().second % 5)) * 0.5; // 0.5m to 2.5m
+final randomDistance = (1 + (DateTime.now().second % 5)) * 0.25; // 0.25m to 1.25m
+
     _distanceInfo = "${randomDistance.toStringAsFixed(1)} meters";
 
     if (randomDistance < 1) {
       _proximityInfo = "Very Close";
+      _nearDetection = true; // ✅ Trigger flag
     } else if (randomDistance < 2) {
       _proximityInfo = "Near";
+      _nearDetection = false;
     } else {
       _proximityInfo = "Far";
+      _nearDetection = false;
     }
   }
 

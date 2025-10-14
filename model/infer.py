@@ -16,11 +16,9 @@ from inference_sdk import InferenceHTTPClient
 from PIL import Image, ImageDraw
 import cv2
 from ultralytics import YOLO
+from flask import send_file
+
 app = Flask(__name__)
-
-model = hub.load("https://tfhub.dev/tensorflow/efficientdet/d0/1")
-
-
 
 def preprocess_image_for_model(image, target_size=(224, 224), normalize=True, to_array=True):
     if not isinstance(image, Image.Image):
@@ -161,16 +159,78 @@ def load_base64_image(base64_str):
     return image
 
 yolo_model = YOLO("./weights/best.pt")
+ 
 
 @app.route("/detect", methods=["POST"])
 def detect():
-    data = request.get_json()
-    if "image" not in data:
-        return jsonify({"error": "Missing 'image' field"}), 400
-
     try:
-        image = load_base64_image(data["image"])
-        image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        image = None
+        is_file_upload = False  # ✅ Track if request was multipart
+
+        # ✅ Case 1: multipart form-data (file upload)
+        if "file" in request.files:
+            is_file_upload = True
+            file = request.files["file"]
+            if file.filename == "":
+                return jsonify({"error": "No file selected"}), 400
+            file_bytes = file.read()
+            np_arr = np.frombuffer(file_bytes, np.uint8)
+            image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # ✅ Case 2: JSON with base64
+        elif request.is_json:
+            data = request.get_json()
+            if "image" not in data:
+                return jsonify({"error": "Missing 'image' field"}), 400
+            image = load_base64_image(data["image"])
+
+        else:
+            return jsonify({"error": "No valid image provided"}), 400
+
+        image_np = np.array(image)
+
+        # 🔹 Near detection mode
+        if request.form.get("neardetection") == "true" or (
+            request.is_json and (data.get("neardetection") is True)
+        ):
+
+            frcnn_model = hub.load(
+                "https://tfhub.dev/tensorflow/faster_rcnn/inception_resnet_v2_1024x1024/1"
+            )
+            input_tensor = tf.convert_to_tensor([image_np], dtype=tf.uint8)
+            detector_output = frcnn_model(input_tensor)
+
+            boxes = detector_output["detection_boxes"].numpy()[0]
+            scores = detector_output["detection_scores"].numpy()[0]
+            classes = detector_output["detection_classes"].numpy()[0].astype(int)
+
+            results = []
+            for i in range(len(scores)):
+                if scores[i] < 0.5:
+                    continue
+                label = labels[classes[i] - 1] if (classes[i] - 1) < len(labels) else str(classes[i])
+                results.append({
+                    "class": label,
+                    "score": float(scores[i]),
+                    "bbox": boxes[i].tolist()
+                })
+
+            # ✅ If file upload → return image with bbox
+            if is_file_upload and results:
+                annotated = draw_bboxes(image_np.copy(), results)
+                _, buffer = cv2.imencode(".jpg", cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR))
+                return send_file(
+                    io.BytesIO(buffer.tobytes()),
+                    mimetype="image/jpeg",
+                    as_attachment=False,
+                    download_name="detection.jpg"
+                )
+
+            return jsonify({"detections": results})
+
+        # 🔹 YOLO + fallback detection
+        image_cv = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
         img_resized = cv2.resize(image_cv, (224, 224))
 
         yolo_results = yolo_model.predict(img_resized, verbose=False)
@@ -179,16 +239,19 @@ def detect():
         top_class_idx = yolo_result.probs.top1
         top_class_conf = yolo_result.probs.top1conf
         class_name = yolo_result.names[top_class_idx]
-        if class_name.lower() in ["door", "stair"]:
-            return jsonify({
-                "detections": [{
-                    "class": class_name,
-                    "score": float(top_class_conf),
-                    "bbox": None 
-                }]
-            })
 
-        image_np = np.array(image)
+        if class_name.lower() in ["door", "stair"]:
+            result = [{
+                "class": class_name,
+                "score": float(top_class_conf),
+                "bbox": None
+            }]
+            if is_file_upload:
+                annotated = draw_bboxes(image_np.copy(), result)
+                _, buffer = cv2.imencode(".jpg", cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR))
+                return send_file(io.BytesIO(buffer.tobytes()), mimetype="image/jpeg")
+            return jsonify({"detections": result})
+
         input_tensor = tf.convert_to_tensor([image_np], dtype=tf.uint8)
         detector_output = model(input_tensor)
 
@@ -208,11 +271,42 @@ def detect():
                 "score": float(scores[i]),
                 "bbox": boxes[i].tolist()
             })
-        print(results)
+
+        # ✅ Return image if file upload, JSON otherwise
+        if is_file_upload and results:
+            annotated = draw_bboxes(image_np.copy(), results)
+            _, buffer = cv2.imencode(".jpg", cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR))
+            return send_file(io.BytesIO(buffer.tobytes()), mimetype="image/jpeg")
+
         return jsonify({"detections": results})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+def draw_bboxes(image, results):
+    """Draw bounding boxes on the image based on results."""
+    h, w, _ = image.shape
+    for det in results:
+        if det["bbox"]:
+            y1, x1, y2, x2 = det["bbox"]
+            pt1 = (int(x1 * w), int(y1 * h))
+            pt2 = (int(x2 * w), int(y2 * h))
+            cv2.rectangle(image, pt1, pt2, (0, 255, 0), 2)
+            cv2.putText(
+                image,
+                f"{det['class']} {det['score']:.2f}",
+                (pt1[0], pt1[1] - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 0),
+                2
+            )
+    return image
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
+
+
+# ngrok config add-authtoken 2m5jqEu9zvNYOb79eZxlWZuAJY0_2pwdj8nUB4nWYbeR55XUo
+# ngrok http 192.168.100.12:5000
