@@ -137,7 +137,7 @@ def draw_boxes(image, predictions):
     return image
 
 
-labels = [
+coco_labels = [
     "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
     "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
     "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra",
@@ -152,12 +152,42 @@ labels = [
     "toothbrush"
 ]
 
-def load_base64_image(base64_str):
-    header, encoded = base64_str.split(",", 1) if "," in base64_str else ("", base64_str)
-    image_data = base64.b64decode(encoded)
-    image = Image.open(io.BytesIO(image_data)).convert("RGB")
-    return image
+labels = [
+    "door",
+    "stairs",
+    "chair/stool/sofa",
+    "table/dining table/center table",
+    "person",
+    "trash bin",
+    "bag/school bag/ backpack",
+    "cabinet/drawer",
+    "stand fan/electric fan/floor fan"
+]
 
+def normalize_label(raw_label: str):
+    if not raw_label:
+        return None
+    r = raw_label.lower()
+    if "door" in r:
+        return "door"
+    if "stair" in r or "steps" in r:
+        return "stairs"
+    if any(k in r for k in ("chair", "stool", "sofa", "couch", "bench")):
+        return "chair/stool/sofa"
+    if any(k in r for k in ("dining table", "center table", "coffee table")) or "table" in r:
+        return "table/dining table/center table"
+    if "person" in r or r == "people":
+        return "person"
+    if any(k in r for k in ("trash", "bin", "garbage", "waste")):
+        return "trash bin"
+    if any(k in r for k in ("backpack", "bag", "handbag", "school bag", "rucksack")):
+        return "bag/school bag/ backpack"
+    if any(k in r for k in ("cabinet", "drawer", "dresser", "filing")):
+        return "cabinet/drawer"
+    if "fan" in r:
+        return "stand fan/electric fan/floor fan"
+    return None
+# ...existing code...
 yolo_model = YOLO("./weights/best.pt")
  
 
@@ -209,9 +239,13 @@ def detect():
             for i in range(len(scores)):
                 if scores[i] < 0.5:
                     continue
-                label = labels[classes[i] - 1] if (classes[i] - 1) < len(labels) else str(classes[i])
+                # Map COCO class index -> raw label -> normalized client label; skip if not in client set
+                raw_label = coco_labels[classes[i] - 1] if (classes[i] - 1) < len(coco_labels) else str(classes[i])
+                norm = normalize_label(raw_label)
+                if norm is None:
+                    continue
                 results.append({
-                    "class": label,
+                    "class": norm,
                     "score": float(scores[i]),
                     "bbox": boxes[i].tolist()
                 })
@@ -240,16 +274,22 @@ def detect():
         top_class_conf = yolo_result.probs.top1conf
         class_name = yolo_result.names[top_class_idx]
 
-        if class_name.lower() in ["door", "stair"]:
+        # Normalize YOLO class and only keep if it maps to a client label
+        norm_yolo = normalize_label(class_name)
+        if norm_yolo:
             result = [{
-                "class": class_name,
+                "class": norm_yolo,
                 "score": float(top_class_conf),
                 "bbox": None
             }]
-            if is_file_upload:
-                annotated = draw_bboxes(image_np.copy(), result)
-                _, buffer = cv2.imencode(".jpg", cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR))
-                return send_file(io.BytesIO(buffer.tobytes()), mimetype="image/jpeg")
+        else:
+            result = []
+ 
+        if result and is_file_upload:
+            annotated = draw_bboxes(image_np.copy(), result)
+            _, buffer = cv2.imencode(".jpg", cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR))
+            return send_file(io.BytesIO(buffer.tobytes()), mimetype="image/jpeg")
+        if result:
             return jsonify({"detections": result})
 
         input_tensor = tf.convert_to_tensor([image_np], dtype=tf.uint8)
@@ -263,11 +303,14 @@ def detect():
         for i in range(len(scores)):
             if scores[i] < 0.5:
                 continue
-            label = labels[classes[i] - 1]
-            if label == "horse":
-                label = "dog"
+            raw_label = coco_labels[classes[i] - 1] if (classes[i] - 1) < len(coco_labels) else str(classes[i])
+            if raw_label == "horse":
+                raw_label = "dog"
+            norm = normalize_label(raw_label)
+            if norm is None:
+                continue
             results.append({
-                "class": label,
+                "class": norm,
                 "score": float(scores[i]),
                 "bbox": boxes[i].tolist()
             })
